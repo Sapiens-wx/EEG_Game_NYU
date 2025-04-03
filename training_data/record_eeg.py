@@ -56,7 +56,7 @@ if __name__ == "__main__":
     """
 
     # Step 1: Start Muse LSL stream (if Muse is not already streaming)
-    start_stream()  # Run this only if the Muse device is not already streaming
+    #start_stream()  # Run this only if the Muse device is not already streaming
 
     # Step 2: Specify recording duration and label
     duration = 60  # Duration in seconds (Adjustable: change to desired recording length)
@@ -64,3 +64,6 @@ if __name__ == "__main__":
 
     # Step 3: Record EEG data
     record_eeg_data(duration, label)
+    
+    # Step 4: Remove duplicate lines. will require the .exe file "remove_duplicate.exe"
+    os.system(".\\remove_duplicate.exe");

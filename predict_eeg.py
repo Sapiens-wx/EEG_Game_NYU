@@ -1,6 +1,6 @@
 import numpy as np
 import torch, os
-from pylsl import StreamInlet, resolve_stream  # For real-time EEG data streaming
+from pylsl import StreamInlet, resolve_streams, resolve_bypred  # For real-time EEG data streaming
 from trainmodel import EEGTransformer  # Import the trained EEG Transformer model
 from sklearn.model_selection import train_test_split  # For splitting training data
 from pynput.keyboard import Controller, Key  # For simulating keyboard button presses
@@ -21,7 +21,7 @@ num_labels = 2  # Number of output classes (e.g., Left and Right)
 model = EEGTransformer(input_dim=input_dim, num_labels=num_labels)
 
 # Load pretrained model checkpoint
-checkpoint_path = os.path.join("eeg_racing_game_trained_model\eeg_transformer_model") # CHANGE THIS PATH
+checkpoint_path = os.path.join("eeg_transformer_model") # CHANGE THIS PATH
 checkpoint = torch.load(checkpoint_path, map_location=device)
 
 # Load and filter the model state dictionary to match current model architecture
@@ -39,7 +39,7 @@ keyboard = Controller()
 
 # Real-time EEG stream handling
 print("Looking for an EEG stream...")
-streams = resolve_stream('type', 'EEG')  # Resolve EEG stream
+streams = resolve_bypred("type='EEG'")  # Resolve EEG stream
 inlet = StreamInlet(streams[0])  # Connect to the first available EEG stream
 print("EEG stream found. Starting real-time classification.")
 
