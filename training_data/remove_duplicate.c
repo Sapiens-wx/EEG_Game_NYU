@@ -156,7 +156,12 @@ void ls() {
 }
 
 int main(int argc, char** argv){
-	ls();
-	system("pause");
+	if(argc==1)
+		ls();
+	else{
+		for(int i=1;i<argc;++i){
+			remove_duplicate(argv[i]);
+		}
+	}
 	return 0;
 }

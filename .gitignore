@@ -1,4 +1,4 @@
 *.csv
 /training_data/preprocessed/
-/__pycache__/
+*__pycache__/
 eeg_transformer_model

@@ -1,7 +1,7 @@
 from muselsl import stream, record  # Muse LSL library for streaming and recording EEG data
 from datetime import datetime       # For generating timestamps
 import os                           # For file and folder handling
-import rmdup.py
+import rmdup
 
 # Function to start Muse streaming
 def start_stream():
@@ -42,6 +42,7 @@ def record_eeg_data(duration, label):
         print(f"Recording EEG data for {duration} seconds...")
         record(duration=duration, filename=filename)  # Save the recording as a CSV
         print(f"Recording saved to {filename}")
+        return filename;
     except Exception as e:
         print("Error recording EEG data:", e)
 
@@ -64,8 +65,8 @@ if __name__ == "__main__":
     label = input("Enter the label for this recording (e.g., left, right): ")
 
     # Step 3: Record EEG data
-    record_eeg_data(duration, label)
+    filename=record_eeg_data(duration, label)
     
     # Step 4: Remove duplicate lines. will require the .exe file "remove_duplicate.exe"
     #remove_duplicate_lines() #usable in all OS systems, but slower
-    os.system(".\\remove_duplicate.exe") #you can use this line if you are using windows
+    os.system(".\\remove_duplicate.exe "+filename) #you can use this line if you are using windows
