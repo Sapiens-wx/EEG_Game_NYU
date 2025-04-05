@@ -4,6 +4,7 @@ from pylsl import StreamInlet, resolve_streams, resolve_bypred  # For real-time 
 from trainmodel import EEGTransformer  # Import the trained EEG Transformer model
 from sklearn.model_selection import train_test_split  # For splitting training data
 from pynput.keyboard import Controller, Key  # For simulating keyboard button presses
+import time; #use the sleep method
 
 # Load preprocessed EEG data
 segments = np.load(os.path.join("training_data\preprocessed\eeg_segments.npy"))  # CHANGE THIS PATH
@@ -104,11 +105,14 @@ try:
 
             # Simulate key presses based on prediction
             if prediction == 0:  # Class 0 corresponds to "Left"
+                keyboard.press(Key.left);
                 action = "Left"
             else:  # Class 1 corresponds to "Right"
                 action = "Right"
+                keyboard.press(Key.right);
 
-            print(f"Predicted Action: {action}")
+            #print(f"Predicted Action: {action}")
+            time.sleep(0.05);
 
 except KeyboardInterrupt:
     print("Prediction stopped.")

@@ -109,6 +109,23 @@ if __name__ == "__main__":
 
         # Log average loss for the epoch
         print(f"Epoch {epoch + 1} completed. Average Loss: {total_loss / len(train_loader)}")
+    #----------validation----------
+    model.eval()  # Set model to evaluation mode
+    total_correct = 0
+    total_samples = 0
+
+    with torch.no_grad():
+        for data, labels in test_loader:
+            data, labels = data.to(device), labels.to(device)
+            outputs = model(data)
+            _, predictions = torch.max(outputs, dim=1)  # Get predicted classes
+            total_correct += (predictions == labels).sum().item()
+            total_samples += labels.size(0)
+
+    # Calculate and print accuracy
+    accuracy = total_correct / total_samples
+    print(f"\nFinal Test Accuracy: {accuracy * 100:.2f}%")
+    #----------validation ends----------
 
     # Save the trained model
     model_save_path = os.path.join("eeg_transformer_model")  # CHANGE THIS PATH
