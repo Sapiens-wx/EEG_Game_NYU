@@ -64,7 +64,7 @@ def preprocess_combined_data(input_file, save_folder, lowcut=1, highcut=50, fs=2
     
     # Separate features and labels
     labels = df['Label'].values  # Ensure your CSV contains a 'Label' column
-    data = df.drop(columns=['Label']).values  # Extract EEG channels (all columns except 'Label')
+    data = df.drop(columns=['Label']).drop(columns=['timestamps']).values  # Extract EEG channels (all columns except 'Label')
     
     # Apply bandpass filter to each channel
     print("Applying bandpass filter...")

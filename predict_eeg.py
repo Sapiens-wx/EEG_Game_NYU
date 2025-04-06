@@ -32,10 +32,10 @@ checkpoint_path = os.path.join("eeg_transformer_model") # CHANGE THIS PATH
 checkpoint = torch.load(checkpoint_path, map_location=device)
 
 # Load and filter the model state dictionary to match current model architecture
-model_state_dict = model.state_dict()
-filtered_state_dict = {k: v for k, v in checkpoint.items() if k in model_state_dict and model_state_dict[k].shape == v.shape}
-model_state_dict.update(filtered_state_dict)
-model.load_state_dict(model_state_dict)
+#model_state_dict = model.state_dict()
+#filtered_state_dict = {k: v for k, v in checkpoint.items() if k in model_state_dict and model_state_dict[k].shape == v.shape}
+#model_state_dict.update(filtered_state_dict)
+#model.load_state_dict(model_state_dict)
 
 # Prepare the model for evaluation
 model.to(device)
