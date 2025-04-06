@@ -83,6 +83,25 @@ def preprocess_combined_data(input_file, save_folder, lowcut=1, highcut=50, fs=2
     np.save(os.path.join(save_folder, "eeg_segments.npy"), segments)
     np.save(os.path.join(save_folder, "eeg_labels.npy"), segment_labels)
     print(f"Preprocessed data saved to {save_folder}")
+    
+# Main preprocessing function. called by predict_eeg.py
+def preprocess_data(data, lowcut=1, highcut=50, fs=256):
+    """
+    Preprocess EEG data from a combined CSV file and save it as NumPy arrays.
+    Parameters:
+        input_file: Path to the combined CSV file containing raw EEG data and labels.
+        save_folder: Folder where the preprocessed data will be saved.
+        lowcut: Lower cutoff frequency for the bandpass filter (Hz).
+        highcut: Upper cutoff frequency for the bandpass filter (Hz).
+        fs: Sampling frequency of the EEG signal (Hz).
+    """
+    # Apply bandpass filter to each channel
+    filtered_data = np.apply_along_axis(bandpass_filter, axis=0, arr=data, lowcut=lowcut, highcut=highcut, fs=fs)
+    
+    # Normalize each channel (z-score normalization)
+    normalized_data = (filtered_data - np.mean(filtered_data, axis=0)) / np.std(filtered_data, axis=0)
+
+    return normalized_data;
 
 # Run the preprocessing script
 if __name__ == "__main__":

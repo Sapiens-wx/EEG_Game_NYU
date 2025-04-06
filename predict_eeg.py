@@ -5,6 +5,11 @@ from trainmodel import EEGTransformer  # Import the trained EEG Transformer mode
 from sklearn.model_selection import train_test_split  # For splitting training data
 from pynput.keyboard import Controller, Key  # For simulating keyboard button presses
 import time; #use the sleep method
+from preprocess_eeg import preprocess_data; # For data preprocessing
+
+# fixed seed
+torch.manual_seed(42);
+np.random.seed(42);
 
 # Load preprocessed EEG data
 segments = np.load(os.path.join("training_data\preprocessed\eeg_segments.npy"))  # CHANGE THIS PATH
@@ -12,6 +17,7 @@ labels = np.load(os.path.join("training_data\preprocessed\eeg_labels.npy"))
 
 # Split data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(segments, labels, test_size=0.2, random_state=42)
+
 
 # Device setup
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # Use GPU if available
@@ -45,8 +51,8 @@ inlet = StreamInlet(streams[0])  # Connect to the first available EEG stream
 print("EEG stream found. Starting real-time classification.")
 
 # Compute training data statistics for normalization
-mean = X_train[:, :, :5].mean(axis=(0, 1))  # Mean across samples and timesteps
-std = X_train[:, :, :5].std(axis=(0, 1))    # Standard deviation across samples and timesteps
+#mean = X_train[:, :, 1:6].mean(axis=(0, 1))  # Mean across samples and timesteps
+#std = X_train[:, :, :1:6].std(axis=(0, 1))    # Standard deviation across samples and timesteps
 
 # Define a smoothing function for incoming EEG samples
 def moving_average(data, window_size=5):
@@ -66,6 +72,9 @@ def moving_average(data, window_size=5):
 buffer = []  # Buffer to store incoming EEG samples
 sequence_length = 256  # Number of samples per sequence
 
+# used for handle keyboard input
+lastKey=Key.left;
+
 try:
     while True:
         # Get a new EEG sample
@@ -73,25 +82,27 @@ try:
         sample = np.array(sample)  # Convert sample to numpy array
 
         # Smooth the sample using a moving average
-        smoothed_sample = moving_average(sample, window_size=5)
+        # smoothed_sample = moving_average(sample, window_size=5)
 
         # Normalize the sample using training data statistics
-        normalized_sample = (smoothed_sample - mean) / std
+        # normalized_sample = (smoothed_sample - mean) / std
 
         # Add the normalized sample to the buffer
-        buffer.append(normalized_sample)
+        buffer.append(sample)
         if len(buffer) > sequence_length:  # Maintain buffer size
             buffer.pop(0)
 
         # Make a prediction if the buffer has enough data
         if len(buffer) == sequence_length:
-            sequence = np.array(buffer)  # Convert buffer to numpy array
+            # preprocess data
+            preprocessed_buffer = preprocess_data(buffer);
+            sequence = np.array(preprocessed_buffer)  # Convert buffer to numpy array
             data = torch.tensor(sequence, dtype=torch.float32).unsqueeze(0).to(device)  # Convert to PyTorch tensor
 
             with torch.no_grad():
                 outputs = model(data)  # Forward pass through the model
                 probabilities = torch.softmax(outputs, dim=1)  # Compute probabilities
-                print(f"Class Probabilities: {probabilities}")
+                #print(f"Class Probabilities: {probabilities}")
                 
                 # Apply class weights
                 #class_weights = torch.tensor([1.0, 1.7]).to(device)  # Example weights: higher weight for class 1
@@ -99,20 +110,22 @@ try:
                 prediction = torch.argmax(probabilities, dim=1).item()  # Predict based on weighted probabilities
 
             # Log predictions for debugging
-            print(f"Raw outputs: {outputs}")
-            print(f"Probabilities: {probabilities}")
+            #print(f"Raw outputs: {outputs}")
+            #print(f"Probabilities: {probabilities}")
             print(f"Predicted class: {prediction}")
 
             # Simulate key presses based on prediction
             if prediction == 0:  # Class 0 corresponds to "Left"
+                keyboard.release(lastKey); # release the last pressed key
+                lastKey=Key.left;
                 keyboard.press(Key.left);
-                action = "Left"
             else:  # Class 1 corresponds to "Right"
-                action = "Right"
+                keyboard.release(lastKey); # release the last pressed key
+                lastKey=Key.right;
                 keyboard.press(Key.right);
 
             #print(f"Predicted Action: {action}")
-            time.sleep(0.05);
+            time.sleep(0.003);
 
 except KeyboardInterrupt:
     print("Prediction stopped.")
