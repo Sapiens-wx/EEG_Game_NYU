@@ -36,6 +36,7 @@ checkpoint = torch.load(checkpoint_path, map_location=device)
 #filtered_state_dict = {k: v for k, v in checkpoint.items() if k in model_state_dict and model_state_dict[k].shape == v.shape}
 #model_state_dict.update(filtered_state_dict)
 #model.load_state_dict(model_state_dict)
+model.load_state_dict(checkpoint)
 
 # Prepare the model for evaluation
 model.to(device)
