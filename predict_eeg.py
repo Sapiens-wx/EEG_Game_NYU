@@ -8,8 +8,8 @@ import time; #use the sleep method
 from preprocess_eeg import preprocess_data; # For data preprocessing
 
 # fixed seed
-torch.manual_seed(42);
-np.random.seed(42);
+#torch.manual_seed(42);
+#np.random.seed(42);
 
 # Load preprocessed EEG data
 segments = np.load(os.path.join("training_data\preprocessed\eeg_segments.npy"))  # CHANGE THIS PATH

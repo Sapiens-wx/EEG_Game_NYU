@@ -8,12 +8,6 @@ import time; #use the sleep method
 from preprocess_eeg import preprocess_data; # For data preprocessing
 import pandas as pd;
 
-# Load preprocessed EEG data
-segments = np.load(os.path.join("training_data\preprocessed\eeg_segments.npy"))  # CHANGE THIS PATH
-labels = np.load(os.path.join("training_data\preprocessed\eeg_labels.npy"))
-
-# Split data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(segments, labels, test_size=0.2, random_state=42)
 
 # Device setup
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # Use GPU if available
