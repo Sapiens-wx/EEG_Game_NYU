@@ -76,22 +76,22 @@ sequence_length = 256  # Number of samples per sequence
 # used for handle keyboard input
 lastKey=Key.left;
 
+# predict interval in seconds
+predictInterval=0.5;
+programStartTime=time.time();
+
 try:
     while True:
+        # record start time
+        startTime=time.time();
+        print(f"time={startTime-programStartTime}");
         # Get a new EEG sample
-        sample, _ = inlet.pull_sample()  # Retrieve an EEG sample from the stream
-        sample = np.array(sample)  # Convert sample to numpy array
-
-        # Smooth the sample using a moving average
-        # smoothed_sample = moving_average(sample, window_size=5)
-
-        # Normalize the sample using training data statistics
-        # normalized_sample = (smoothed_sample - mean) / std
-
-        # Add the normalized sample to the buffer
-        buffer.append(sample)
-        if len(buffer) > sequence_length:  # Maintain buffer size
-            buffer.pop(0)
+        samples, _ = inlet.pull_chunk()  # Retrieve EEG samples from the stream
+        if samples:
+            for sample in samples:
+                buffer.append(np.array(sample));
+                if len(buffer)>sequence_length:
+                    buffer.pop(0);
 
         # Make a prediction if the buffer has enough data
         if len(buffer) == sequence_length:
@@ -126,7 +126,9 @@ try:
                 keyboard.press(Key.right);
 
             #print(f"Predicted Action: {action}")
-            time.sleep(0.003);
+        timeElapsed=time.time()-startTime;
+        if predictInterval-timeElapsed>0:
+            time.sleep(predictInterval-timeElapsed);
 
 except KeyboardInterrupt:
     print("Prediction stopped.")
